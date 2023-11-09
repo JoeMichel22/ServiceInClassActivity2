@@ -5,23 +5,33 @@ import android.content.Intent
 import android.content.ServiceConnection
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.widget.Button
+import android.widget.TextView
 import kotlin.concurrent.timer
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var timerBinder: TimerService.TimerBinder
+    lateinit var tvTimer: TextView
+    lateinit var timerBinder: TimerService.TimerBinder
     private var connected= false
     private val serviceConnection= object: ServiceConnection {
         override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
             timerBinder= p1 as TimerService.TimerBinder
+            timerBinder.setHandler(timerHandler)
             connected= true
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
             connected= false
         }
+    }
+
+    val timerHandler= Handler(Looper.getMainLooper()){
+        tvTimer.text= it.what.toString()
+        true
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +41,7 @@ class MainActivity : AppCompatActivity() {
             serviceConnection,
             BIND_AUTO_CREATE
         )
+        tvTimer= findViewById(R.id.tvTimer)
 
 
 
